@@ -31,7 +31,7 @@
 #define HUMANS_DISPLAY_H
 
 #ifndef Q_MOC_RUN
-#include <boost/circular_buffer.hpp>
+#include <vector>
 
 #include <rviz/message_filter_display.h>
 #include "concert_msgs/Humans.h"
@@ -74,20 +74,17 @@ protected:
   // These Qt slots get connected to signals indicating changes in the user-editable properties.
 private Q_SLOTS:
   void updateColorAndAlpha();
-  void updateHistoryLength();
 
   // Function to handle an incoming ROS message.
 private:
   void processMessage( const concert_msgs::Humans::ConstPtr& msg );
 
-  // Storage for the list of visuals.  It is a circular buffer where
-  // data gets popped from the front (oldest) and pushed to the back (newest)
-  boost::circular_buffer<boost::shared_ptr<HumansVisual> > visuals_;
+  // Storage for the list of visuals.
+  std::vector<boost::shared_ptr<HumansVisual> > visuals_;
 
   // User-editable property variables.
   rviz::ColorProperty* color_property_;
   rviz::FloatProperty* alpha_property_;
-  rviz::IntProperty* history_length_property_;
 };
 
 } // end namespace rviz_plugin_humans

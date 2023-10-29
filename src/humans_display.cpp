@@ -55,18 +55,12 @@ HumansDisplay::HumansDisplay()
                                              "0 is fully transparent, 1.0 is fully opaque.",
                                              this, SLOT( updateColorAndAlpha() ));
 
-  history_length_property_ = new rviz::IntProperty( "History Length", 1,
-                                                    "Number of prior measurements to display.",
-                                                    this, SLOT( updateHistoryLength() ));
-  history_length_property_->setMin( 1 );
-  history_length_property_->setMax( 100000 );
 }
 
 
 void HumansDisplay::onInitialize()
 {
   MFDClass::onInitialize();
-  updateHistoryLength();
 }
 
 HumansDisplay::~HumansDisplay()
@@ -92,11 +86,6 @@ void HumansDisplay::updateColorAndAlpha()
   }
 }
 
-// Set the number of past visuals to show.
-void HumansDisplay::updateHistoryLength()
-{
-  visuals_.rset_capacity(history_length_property_->getInt());
-}
 
 // This is our callback to handle an incoming message.
 void HumansDisplay::processMessage( const concert_msgs::Humans::ConstPtr& msg )
@@ -106,6 +95,8 @@ void HumansDisplay::processMessage( const concert_msgs::Humans::ConstPtr& msg )
   // it fails, we can't do anything else so we return.
   Ogre::Quaternion orientation;
   Ogre::Vector3 position;
+  
+  // TODO: remove as soon as source_frame is specified by profactor
   std::string source_frame = msg->header.frame_id;
   if (source_frame==""){
     source_frame="base_link";
@@ -116,33 +107,37 @@ void HumansDisplay::processMessage( const concert_msgs::Humans::ConstPtr& msg )
                                                   position, orientation ))
   {
     ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'",
-               source_frame.c_str(), qPrintable( fixed_frame_ ));
+              source_frame.c_str(), qPrintable( fixed_frame_ ));
     return;
   }
 
-  // We are keeping a circular buffer of visual pointers.  This gets
-  // the next one, or creates and stores it if the buffer is not full
-  boost::shared_ptr<HumansVisual> visual;
-  if( visuals_.full() )
+  for(const concert_msgs::Human3D& human: msg->humans)
   {
-    visual = visuals_.front();
+    int label_id = human.label_id;
+    if(label_id >= 0)
+    {
+      boost::shared_ptr<HumansVisual> visual;
+      
+      if (label_id >= visuals_.size())
+      {
+        visuals_.resize(label_id + 1);
+      }
+
+      visual.reset(new HumansVisual( context_->getSceneManager(), scene_node_ ));
+
+      // Now set or update the contents of the chosen visual.
+      visual->setMessage( human );
+      visual->setFramePosition( position );
+      visual->setFrameOrientation( orientation );
+
+      float alpha = alpha_property_->getFloat();
+      Ogre::ColourValue color = color_property_->getOgreColor();
+      visual->setColor( color.r, color.g, color.b, alpha );
+
+      // And send it to the end of the circular buffer
+      visuals_[label_id] =  visual;
+    }
   }
-  else
-  {
-    visual.reset(new HumansVisual( context_->getSceneManager(), scene_node_ ));
-  }
-
-  // Now set or update the contents of the chosen visual.
-  visual->setMessage( msg );
-  visual->setFramePosition( position );
-  visual->setFrameOrientation( orientation );
-
-  float alpha = alpha_property_->getFloat();
-  Ogre::ColourValue color = color_property_->getOgreColor();
-  visual->setColor( color.r, color.g, color.b, alpha );
-
-  // And send it to the end of the circular buffer
-  visuals_.push_back(visual);
 }
 
 } // end namespace rviz_plugin_humans

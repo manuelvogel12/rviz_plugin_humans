@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HUMANSVISUAL2_H
-#define HUMANSVISUAL2_H
+#ifndef HUMANSVISUAL_H
+#define HUMANSVISUAL_H
 
-#include "concert_msgs/Humans.h"
+#include "concert_msgs/Human3D.h"
 
 namespace Ogre
 {
@@ -58,7 +58,7 @@ public:
   virtual ~HumansVisual();
 
   // Configure the visual to show the data in the message.
-  void setMessage( const concert_msgs::Humans::ConstPtr& msg );
+  void setMessage( const concert_msgs::Human3D& human );
 
   // Set the pose of the coordinate frame the message refers to.
   void setFramePosition( const Ogre::Vector3& position );
@@ -69,7 +69,7 @@ public:
 
 private:
   // The object implementing the actual arrow shape
-  boost::shared_ptr<rviz::Arrow> acceleration_arrow_[7];
+  boost::shared_ptr<rviz::Arrow> acceleration_arrow_[13];
 
   // A SceneNode whose pose is set to match the coordinate frame of
   // the message header.

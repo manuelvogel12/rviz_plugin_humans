@@ -54,7 +54,7 @@ HumansVisual::HumansVisual( Ogre::SceneManager* scene_manager, Ogre::SceneNode* 
 
   // We create the arrow object within the frame node so that we can
   // set its position and direction relative to its header frame.
-  for(int i=0; i<7; i++){
+  for(int i=0; i<13; i++){
     acceleration_arrow_[i].reset(new rviz::Arrow( scene_manager_, frame_node_ ));
   }
 }
@@ -65,14 +65,14 @@ HumansVisual::~HumansVisual()
   scene_manager_->destroySceneNode( frame_node_ );
 }
 
-void HumansVisual::setMessage( const concert_msgs::Humans::ConstPtr& msg )
+void HumansVisual::setMessage( const concert_msgs::Human3D& human )
 {
-  int arrow_start_index[7] = {12,16,20,17,21,1,2}; 
-  int arrow_end_index[7]   = {0 ,18,22,19,23,10,11};
-  for(int i=0; i<7; i++){
+  int arrow_start_index[13] = {0,9 ,9 ,16,20 ,17,21,0,0,4,7 ,5, 8};
+  int arrow_end_index[13]   = {9,16,17,18,22,19,23,4,5,7,10,8,11};
+  for(int i=0; i<13; i++){
 
-    const geometry_msgs::Point& start = msg->humans[0].keypoints[arrow_start_index[i]].pose.position;
-    const geometry_msgs::Point& end = msg->humans[0].keypoints[arrow_end_index[i]].pose.position;
+    const geometry_msgs::Point& start = human.keypoints[arrow_start_index[i]].pose.position;
+    const geometry_msgs::Point& end = human.keypoints[arrow_end_index[i]].pose.position;
 
     // Convert the geometry_msgs::Vector3 to an Ogre::Vector3.
     Ogre::Vector3 start_vec( start.x, start.y, start.z );
@@ -107,7 +107,7 @@ void HumansVisual::setFrameOrientation( const Ogre::Quaternion& orientation )
 // Color is passed through to the Arrow object.
 void HumansVisual::setColor( float r, float g, float b, float a )
 {
-  for(int i=0; i<7; i++){
+  for(int i=0; i<13; i++){
     acceleration_arrow_[i]->setColor( r, g, b, a );
   }
 }
