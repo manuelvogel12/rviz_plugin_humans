@@ -41,6 +41,7 @@ class Quaternion;
 namespace rviz
 {
 class Arrow;
+class MovableText;
 }
 
 namespace rviz_plugin_humans
@@ -69,7 +70,10 @@ public:
 
 private:
   // The object implementing the actual arrow shape
-  boost::shared_ptr<rviz::Arrow> acceleration_arrow_[13];
+  boost::shared_ptr<rviz::Arrow> bone_arrow_[13];
+  
+  // The text object to display the label id
+  rviz::MovableText* text_label;
 
   // A SceneNode whose pose is set to match the coordinate frame of
   // the message header.

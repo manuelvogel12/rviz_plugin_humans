@@ -32,6 +32,8 @@
 #include <OGRE/OgreSceneManager.h>
 
 #include <rviz/ogre_helpers/arrow.h>
+#include <rviz/ogre_helpers/movable_text.h>
+
 #include <geometry_msgs/Point.h>
 
 #include "humans_visual.h"
@@ -55,8 +57,11 @@ HumansVisual::HumansVisual( Ogre::SceneManager* scene_manager, Ogre::SceneNode* 
   // We create the arrow object within the frame node so that we can
   // set its position and direction relative to its header frame.
   for(int i=0; i<13; i++){
-    acceleration_arrow_[i].reset(new rviz::Arrow( scene_manager_, frame_node_ ));
+    bone_arrow_[i].reset(new rviz::Arrow( scene_manager_, frame_node_ ));
   }
+  text_label = new rviz::MovableText( "NO ID","Liberation Sans", 0.2, Ogre::ColourValue(0.1,0.1,0.1,0.5));
+  text_label->setTextAlignment(rviz::MovableText::H_CENTER, rviz::MovableText::V_BELOW);
+  frame_node_->attachObject(text_label);
 }
 
 HumansVisual::~HumansVisual()
@@ -69,6 +74,7 @@ void HumansVisual::setMessage( const concert_msgs::Human3D& human )
 {
   int arrow_start_index[13] = {0,9 ,9 ,16,20 ,17,21,0,0,4,7 ,5, 8};
   int arrow_end_index[13]   = {9,16,17,18,22,19,23,4,5,7,10,8,11};
+  text_label->setCaption("ID: " + std::to_string(human.label_id));
   for(int i=0; i<13; i++){
 
     const geometry_msgs::Point& start = human.keypoints[arrow_start_index[i]].pose.position;
@@ -84,13 +90,16 @@ void HumansVisual::setMessage( const concert_msgs::Human3D& human )
     // Scale the arrow's thickness in each dimension along with its length.
     float length = dir.length();
     Ogre::Vector3 scale( length, length, length);
-    acceleration_arrow_[i]->setScale( scale );
+    bone_arrow_[i]->setScale( scale );
 
     // Set the orientation of the arrow to match the direction of the
     // acceleration vector.
-    acceleration_arrow_[i]->setDirection( dir );
-    acceleration_arrow_[i]->setPosition( start_vec );
+    bone_arrow_[i]->setDirection( dir );
+    bone_arrow_[i]->setPosition( start_vec );
   }
+  const geometry_msgs::Point& human_origin = human.keypoints[arrow_start_index[0]].pose.position;
+  Ogre::Vector3 origin_vec( human_origin.x, human_origin.y, human_origin.z );
+  text_label->setGlobalTranslation( origin_vec );
 }
 
 // Position and orientation are passed through to the SceneNode.
@@ -108,7 +117,7 @@ void HumansVisual::setFrameOrientation( const Ogre::Quaternion& orientation )
 void HumansVisual::setColor( float r, float g, float b, float a )
 {
   for(int i=0; i<13; i++){
-    acceleration_arrow_[i]->setColor( r, g, b, a );
+    bone_arrow_[i]->setColor( r, g, b, a );
   }
 }
 
