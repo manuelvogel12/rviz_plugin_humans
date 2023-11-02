@@ -72,13 +72,27 @@ HumansVisual::~HumansVisual()
 
 void HumansVisual::setMessage( const concert_msgs::Human3D& human )
 {
-  int arrow_start_index[13] = {0,9 ,9 ,16,20 ,17,21,0,0,4,7 ,5, 8};
-  int arrow_end_index[13]   = {9,16,17,18,22,19,23,4,5,7,10,8,11};
-  text_label->setCaption("ID: " + std::to_string(human.label_id));
-  for(int i=0; i<13; i++){
+  std::vector<std::pair<int,int>> arrow_pairs = {
+    {0,9}, // chest
+    {9,16}, // shoulder
+    {9,17}, // shoulder
+    {16,18}, // upper arm
+    {18, 22}, // lower arm + hand (18 -> 20 ->22)
+    {17,19}, // upper arm
+    {19,23}, // lower arm + hand (19-> 21 -> 23)
+    {0,1}, // hip
+    {0,2}, // hip
+    {1,4}, // upper leg
+    {2,5}, // upper leg
+    {4,7}, // lower leg
+    {5,8}, //lower leg
+    };
 
-    const geometry_msgs::Point& start = human.keypoints[arrow_start_index[i]].pose.position;
-    const geometry_msgs::Point& end = human.keypoints[arrow_end_index[i]].pose.position;
+  text_label->setCaption("ID: " + std::to_string(human.label_id));
+  for(int i=0; i<13; i++)
+  {
+    const geometry_msgs::Point& start = human.keypoints[arrow_pairs[i].first].pose.position;
+    const geometry_msgs::Point& end = human.keypoints[arrow_pairs[i].second].pose.position;
 
     // Convert the geometry_msgs::Vector3 to an Ogre::Vector3.
     Ogre::Vector3 start_vec( start.x, start.y, start.z );
@@ -97,7 +111,7 @@ void HumansVisual::setMessage( const concert_msgs::Human3D& human )
     bone_arrow_[i]->setDirection( dir );
     bone_arrow_[i]->setPosition( start_vec );
   }
-  const geometry_msgs::Point& human_origin = human.keypoints[arrow_start_index[0]].pose.position;
+  const geometry_msgs::Point& human_origin = human.keypoints[11].pose.position;
   Ogre::Vector3 origin_vec( human_origin.x, human_origin.y, human_origin.z );
   text_label->setGlobalTranslation( origin_vec );
 }
