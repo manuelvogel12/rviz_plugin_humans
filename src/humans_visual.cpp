@@ -31,7 +31,8 @@
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
 
-#include <rviz/ogre_helpers/arrow.h>
+#include <rviz/ogre_helpers/line.h>
+#include <rviz/ogre_helpers/billboard_line.h>
 #include <rviz/ogre_helpers/movable_text.h>
 
 #include <geometry_msgs/Point.h>
@@ -56,8 +57,9 @@ HumansVisual::HumansVisual( Ogre::SceneManager* scene_manager, Ogre::SceneNode* 
 
   // We create the arrow object within the frame node so that we can
   // set its position and direction relative to its header frame.
-  for(int i=0; i<13; i++){
-    bone_arrow_[i].reset(new rviz::Arrow( scene_manager_, frame_node_ ));
+  for(int i=0; i<number_lines; i++){
+    bone_line_[i].reset(new rviz::Line( scene_manager_, frame_node_));
+    bone_billboard_line_[i].reset(new rviz::BillboardLine( scene_manager_, frame_node_));
   }
   text_label = new rviz::MovableText( "NO ID","Liberation Sans", 0.2, Ogre::ColourValue(0.1,0.1,0.1,0.5));
   text_label->setTextAlignment(rviz::MovableText::H_CENTER, rviz::MovableText::V_BELOW);
@@ -86,10 +88,11 @@ void HumansVisual::setMessage( const concert_msgs::Human3D& human )
     {2,5}, // upper leg
     {4,7}, // lower leg
     {5,8}, //lower leg
+    {9,15} //head
     };
 
-  text_label->setCaption("ID: " + std::to_string(human.label_id));
-  for(int i=0; i<13; i++)
+  // visualize bones
+  for(int i=0; i<number_lines; i++)
   {
     const geometry_msgs::Point& start = human.keypoints[arrow_pairs[i].first].pose.position;
     const geometry_msgs::Point& end = human.keypoints[arrow_pairs[i].second].pose.position;
@@ -98,19 +101,17 @@ void HumansVisual::setMessage( const concert_msgs::Human3D& human )
     Ogre::Vector3 start_vec( start.x, start.y, start.z );
     Ogre::Vector3 end_vec( end.x, end.y, end.z );
 
-    Ogre::Vector3 dir = end_vec - start_vec;
+    // use lines and billboard lines since lines have no width, but billboard lines can be invisible 
+    bone_line_[i]->setPoints(start_vec, end_vec);
 
-
-    // Scale the arrow's thickness in each dimension along with its length.
-    float length = dir.length();
-    Ogre::Vector3 scale( length, length, length);
-    bone_arrow_[i]->setScale( scale );
-
-    // Set the orientation of the arrow to match the direction of the
-    // acceleration vector.
-    bone_arrow_[i]->setDirection( dir );
-    bone_arrow_[i]->setPosition( start_vec );
+    bone_billboard_line_[i]->addPoint(start_vec);
+    bone_billboard_line_[i]->addPoint(end_vec);
+    bone_billboard_line_[i]->setLineWidth(0.03);
   }
+  
+  //text label for Human ID
+  text_label->setCaption("ID: " + std::to_string(human.label_id));
+  // set the position for the label text
   const geometry_msgs::Point& human_origin = human.keypoints[11].pose.position;
   Ogre::Vector3 origin_vec( human_origin.x, human_origin.y, human_origin.z );
   text_label->setGlobalTranslation( origin_vec );
@@ -130,8 +131,10 @@ void HumansVisual::setFrameOrientation( const Ogre::Quaternion& orientation )
 // Color is passed through to the Arrow object.
 void HumansVisual::setColor( float r, float g, float b, float a )
 {
-  for(int i=0; i<13; i++){
-    bone_arrow_[i]->setColor( r, g, b, a );
+  for(int i=0; i<number_lines; i++){
+    //bone_arrow_[i]->setColor( r, g, b, a );
+    //bone_line_[i]->setColor( r, g, b, a );
+    bone_billboard_line_[i]->setColor( r, g, b, a );
   }
 }
 
