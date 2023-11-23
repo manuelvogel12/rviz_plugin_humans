@@ -1,9 +1,7 @@
 # RVIZ PLUGIN HUMANS
 
 This plugin can directly visualize concert_msgs/Humans messages in RVIZ. 
-
-![image](https://github.com/manuelvogel12/rviz_plugin_humans/assets/120781514/998fe5e6-e553-4d1d-8a86-f734ab7d3e05)
-
+![image](https://github.com/manuelvogel12/rviz_plugin_humans/assets/120781514/14527d0a-df68-42d1-aaf1-7af969d06114)
 
 ## Installation
 * clone this plugin into your catkin_ws/src directory, and recompile (catkin build)
