@@ -75,20 +75,12 @@ HumansVisual::~HumansVisual()
 void HumansVisual::setMessage( const concert_msgs::Human3D& human )
 {
   std::vector<std::pair<int,int>> arrow_pairs = {
-    {0,9}, // chest
-    {9,16}, // shoulder
-    {9,17}, // shoulder
-    {16,18}, // upper arm
-    {18, 22}, // lower arm + hand (18 -> 20 ->22)
-    {17,19}, // upper arm
-    {19,23}, // lower arm + hand (19-> 21 -> 23)
-    {0,1}, // hip
-    {0,2}, // hip
-    {1,4}, // upper leg
-    {2,5}, // upper leg
-    {4,7}, // lower leg
-    {5,8}, //lower leg
-    {9,15} //head
+    {24,11}, // chest
+    {11,14}, {14,15}, {15,16}, // left arm
+    {11,19}, {19,20}, {20,21}, // right arm
+    {24,0}, {0,1}, {1,2}, {2,3}, // right leg
+    {24,5}, {5,6}, {6,7}, {7,8}, // left leg
+    {11,12} //head
     };
 
   // visualize bones

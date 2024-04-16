@@ -72,7 +72,7 @@ public:
 
 private:
   // The object implementing the actual arrow shape
-  const static int number_lines = 14;
+  const static int number_lines = 16;
   //boost::shared_ptr<rviz::Arrow> bone_arrow_[number_lines];
   boost::shared_ptr<rviz::Line> bone_line_[number_lines];
   boost::shared_ptr<rviz::BillboardLine> bone_billboard_line_[number_lines];
