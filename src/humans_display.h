@@ -35,6 +35,7 @@
 
 #include <rviz/message_filter_display.h>
 #include "concert_msgs/Humans.h"
+#include "std_msgs/Bool.h"
 #endif
 
 namespace Ogre
@@ -79,8 +80,12 @@ private Q_SLOTS:
 private:
   void processMessage( const concert_msgs::Humans::ConstPtr& msg );
 
+  void humansInSceneCallback(const std_msgs::Bool& msg);
+
   // Storage for the list of visuals.
   std::vector<boost::shared_ptr<HumansVisual> > visuals_;
+
+  ros::Subscriber _humans_in_scene_sub;
 
   // User-editable property variables.
   rviz::ColorProperty* color_property_;

@@ -61,6 +61,9 @@ HumansDisplay::HumansDisplay()
 void HumansDisplay::onInitialize()
 {
   MFDClass::onInitialize();
+  ros::NodeHandle nh;
+  _humans_in_scene_sub = nh.subscribe("/sara_shield/humans_in_scene", 100, &HumansDisplay::humansInSceneCallback, this);
+
 }
 
 HumansDisplay::~HumansDisplay()
@@ -137,6 +140,13 @@ void HumansDisplay::processMessage( const concert_msgs::Humans::ConstPtr& msg )
       // And send it to the end of the circular buffer
       visuals_[label_id] =  visual;
     }
+  }
+}
+
+// remove all humans visuals
+void HumansDisplay::humansInSceneCallback(const std_msgs::Bool& msg) {
+  if (!msg.data) {
+    reset();
   }
 }
 
